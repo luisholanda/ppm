@@ -9,6 +9,6 @@ setup(name='ppm',
       license='GNU',
       packages=['ppm'],
       install_requires=[
-	      'pip',
+            'pip',
       ],
       zip_safe=False)

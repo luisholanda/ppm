@@ -1,7 +1,6 @@
 import re
 import shlex
 import subprocess
-import sys
 
 import pip
 
@@ -9,7 +8,16 @@ from ppm import utils
 
 
 class AddCommand:
-	def __init__(self, modules: list):
+	def __init__(self, dependencies: dict or list):
+		modules = []
+
+		if type(dependencies) == 'dict':
+			for mod, version in dependencies.items():
+				string = mod + '@' + version
+				modules.append(string)
+		else:
+			modules = dependencies
+
 		self._modules = modules
 		self._get_dependencies()
 
@@ -34,24 +42,19 @@ class AddCommand:
 		utils.write(version_text)
 
 	@staticmethod
-	def _get_version(mod):
+	def _get_version(mod: str) -> str:
 		command = 'pip show ' + mod
 		command = shlex.split(command)
 
 		process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		process.stdout.readline()
 		output = process.stdout.readline().decode('utf-8')
+		process.kill()
 
 		version = re.findall(r'\d+.\d+.\d+', output)
 		try:
 			version = version[0]
 		except IndexError:
-			pass
+			return 'failed'
 
 		return version
-
-
-# For testing only
-if __name__ == '__main__':
-	utils.set_env()
-	AddCommand(sys.argv[1:])
