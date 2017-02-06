@@ -1,9 +1,20 @@
+import os
 import sys
 
 
 def write(text: str):
 	sys.stdout.write(text)
 	sys.stdout.flush()
+
+
+MODULES_FOLDER = os.path.join(os.getcwd(), 'python_modules')
+
+
+def set_env():
+	if os.environ.get('PYTHONPATH', None) is None:
+		os.environ['PYTHONPATH'] = MODULES_FOLDER
+	else:
+		os.environ['PYTHONPATH'] = MODULES_FOLDER + ':' + os.environ['PYTHONPATH']
 
 
 class BColors:
