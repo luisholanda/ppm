@@ -30,7 +30,7 @@ var/
 *.manifest
 *.spec
 
-# Installer logs
+# Installer logsz
 pip-log.txt
 pip-delete-this-directory.txt
 
@@ -87,3 +87,20 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+
+# IntelliJ
+/out/
+
+# mpeltonen/sbt-idea plugin
+.idea_modules/
+.idea/
+
+# JIRA plugin
+atlassian-ide-plugin.xml
+
+# Crashlytics plugin (for Android Studio and IntelliJ)
+com_crashlytics_export_strings.xml
+crashlytics.properties
+crashlytics-build.properties
+fabric.properties

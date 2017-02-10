@@ -34,8 +34,7 @@ class AddCommand:
 		pip.main(['install', mod, '-t', utils.MODULES_FOLDER, '-q'])
 
 		version = self._get_version(mod)
-		version_text = utils.BColors.OKBLUE + f'{version} ' \
-		               + utils.BColors.OKGREEN + '\u2713 \n'
+		version_text = utils.BColors.OKBLUE + f'{version} ' + utils.BColors.OKGREEN + '\u2713 \n'
 
 		len2 = 50 - len1 - len(version_text)
 		version_text = ' ' * len2 + version_text
