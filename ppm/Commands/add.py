@@ -1,59 +1,89 @@
-import re
-import shlex
-import subprocess
+import os
+from multiprocessing import Pool
 
 import pip
+from typing import List, Tuple
 
 from ppm import utils
 
+CPU_CORES = len(os.sched_getaffinity(0))
+
+TOTAL_LENGTH = 50
+
 
 class AddCommand:
-	def __init__(self, dependencies: dict or list):
+	def __init__(self):
+		self._modules = []
+
+	def main(self, dependencies: dict or List[str]):
 		modules = []
 
-		if type(dependencies) == 'dict':
+		try:
 			for mod, version in dependencies.items():
-				string = mod + '@' + version
-				modules.append(string)
-		else:
+				# 			TODO: Version handling
+				modules.append(mod)
+		except AttributeError:
 			modules = dependencies
 
 		self._modules = modules
 		self._get_dependencies()
 
 	def _get_dependencies(self):
-		for mod in self._modules:
-			self._install_module(mod)
+		n = CPU_CORES
+		if len(self._modules) < CPU_CORES:
+			n = len(self._modules)
+		pool = Pool(n)
 
-	def _install_module(self, mod):
-		install_text = utils.BColors.OKGREEN + 'Installing ' + utils.BColors.BOLD + utils.BColors.OKBLUE + mod \
-		               + utils.BColors.ENDC + utils.BColors.OKGREEN + ' ...' + utils.BColors.ENDC
-		utils.write(install_text)
-		len1 = len(install_text)
+		install_text = utils.BColors.OKGREEN + 'Installing dependencies...' + utils.BColors.ENDC
+		print(install_text)
 
-		pip.main(['install', mod, '-t', utils.MODULES_FOLDER, '-q'])
+		for err, module, version in pool.imap_unordered(self._install_module, self._modules):
+			module_length = len(module)
+			version_length = len(version)
 
-		version = self._get_version(mod)
-		version_text = utils.BColors.OKBLUE + f'{version} ' + utils.BColors.OKGREEN + '\u2713 \n'
+			dots_length = TOTAL_LENGTH - module_length - version_length - 2
 
-		len2 = 50 - len1 - len(version_text)
-		version_text = ' ' * len2 + version_text
-		utils.write(version_text)
+			if not err:
+				installed_text = module + ' ' * dots_length + utils.BColors.OKBLUE + \
+				                 version + utils.BColors.OKGREEN + ' \u2713' + utils.BColors.ENDC
+
+				print(installed_text)
+			else:
+				fail_text = utils.BColors.FAIL + module + ' ' * dots_length + version + ' \u2717' + utils.BColors.ENDC
+				print(fail_text)
+
+	def _install_module(self, mod: str) -> Tuple[str, str, str]:
+		error = None
+		try:
+			pip.main(['install', mod, '-t', utils.MODULES_FOLDER, '-q'])
+		except Exception:
+			error = 'ERROR'
+
+		version = self.get_version(mod)
+
+		if not version:
+			error = 'IERROR'
+			version = 'failed'
+		elif version == 'error':
+			error = 'ERROR'
+
+		return error, mod, version
 
 	@staticmethod
-	def _get_version(mod: str) -> str:
-		command = 'pip show ' + mod
-		command = shlex.split(command)
+	def get_version(mod: str) -> str:
+		from pip.utils import get_installed_version
 
-		process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		process.stdout.readline()
-		output = process.stdout.readline().decode('utf-8')
-		process.kill()
-
-		version = re.findall(r'\d+.\d+.\d+', output)
+		path = os.path.join(os.getcwd(), 'python_modules')
+		abs_path = os.path.abspath(path)
 		try:
-			version = version[0]
-		except IndexError:
-			return 'failed'
+			version = get_installed_version(mod, [abs_path])
+		except:
+			return 'error'
 
 		return version
+
+
+if __name__ == '__main__':
+	utils.set_env()
+	cmd = AddCommand()
+	cmd.main(['twisted', 'tornado', 'numpy', 'pandas', 'matplotlib', 'seaborn'])
