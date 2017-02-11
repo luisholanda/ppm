@@ -4,25 +4,16 @@ python: '3.6'
 
 install:
 - pip install codeclimate-test-reporter
+- pip install codecov
 
 before_script:
 - export PYTHONPATH=$PYTHONPATH:$(pwd)
 
 script:
 - python -m unittest spec/*.py
-- coverage run spec/*.py
-
-after_success:
- - codeclimate-test-reporter
- - codecov
 
 notification:
   email:
     recipients: luiscmholanda@gmail.com
     on_success: never
     on_failure: always
-
-addons:
-  code_climate:
-    repo_token:
-      secure: "dKrWqoHeQNEyShkRvD5r3Fto+vyi8v17DtqFj4TNXvscq7p15rfPmRG1pWki1kJv6X33wT/8HhlhOJyBW1SGBk+Jz/AlbDbEaqc9ZOIH6INXPma4WB2DRefFnUa3easaXYmpnJOIhoJevr5lo8A6BzpVusFgrPQ6yYw1URzJ9LyqTCgx1UvMmWmSMnz4JG8PiToayh2rWAI+ap3/rmmlVlrRUj0rqwFB4+ARYqKfeD/cMLH/E/5UC7U0WaeTeqoGMcWzRgyrqaz3Gx9pfBqtntPvNBzMMEVB/QGMq/eZAeoItzufVU+oDZ/SnD3rzN51BxsFrQPn0bOWSxbUodqclzqG3MN95K/sEMxK3bwMGB3sb6Ppc1aic0ZxZ1Yq2VIwkng58slUyEU2v6LcRfEk3nFZHmO4gEafOyymaLqIX3wOEsSmF/QTGY4v41uYIitTIq0UFS7pBXmHwhA/p1SBXySiZtJjFBPSP1oUKstUMx/8b1g54t96GJbZIaGsKHCErfGeghCCUKdy0eRbAmFcI7EwBVM9O/Ax2CUHw41mJbjM6JcYvRhhmtmZ/bmfkOjNQIjrz2FDQizymmy/BEX0rubOInFoHqvD/m4cUh613ahJ8nyz7vF833/XLJlz+8KEqjBANyiI6cTlDh56YVw7soS0qCHtwZChAjKygmBhS4c="
