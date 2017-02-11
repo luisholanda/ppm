@@ -6,7 +6,7 @@ install:
 - pip install codeclimate-test-reporter
 
 before_script:
-- $(shell export PYTHONPATH=$PYTHONPATH:$(pwd))
+- export PYTHONPATH=$PYTHONPATH:$(pwd)
 
 script:
 - python -m unittest spec/*.py
