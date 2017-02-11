@@ -1,18 +1,24 @@
 sudo: false
 language: python
 python: '3.6'
+
 install:
 - pip install codeclimate-test-reporter
+
 script:
-- python -m unittest spec/*
-- coverage run -m ppm
+- python -m unittest spec/*.py
+- coverage run spec/*.py
+
 after_success:
-- codeclimate-test-reporter
+ - codeclimate-test-reporter
+ - codecov
+
 notification:
   email:
     recipients: luiscmholanda@gmail.com
     on_success: never
     on_failure: always
+
 addons:
   code_climate:
     repo_token:
