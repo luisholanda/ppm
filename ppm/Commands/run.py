@@ -6,7 +6,11 @@ from ppm import utils
 
 
 class RunCommand:
-	def __init__(self, command: str or list, start_output: str = ''):
+	def __init__(self):
+		# Setup argsparser
+		pass
+
+	def main(self, command: str or list, start_output: str = ''):
 		if start_output:
 			utils.write(start_output)
 

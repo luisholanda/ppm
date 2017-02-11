@@ -5,11 +5,13 @@ from ppm.Commands.run import RunCommand
 
 
 class StartCommand(RunCommand):
-	def __init__(self, command: str or list):
+	def __init__(self):
+		super(StartCommand, self).__init__()
+
+	def start(self, command: str or list):
 		start_output = utils.BColors.BOLD + utils.BColors.OKGREEN + 'Starting: ' + utils.BColors.HEADER + command \
 		               + utils.BColors.ENDC + '\n'
-		super(StartCommand, self).__init__(command=command, start_output=start_output)
-
+		self.main(command, start_output)
 
 # For testing only
 if __name__ == '__main__':
