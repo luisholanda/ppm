@@ -4,7 +4,7 @@ language: python
 
 python: "3.6"
 
-script: pytest
+script: python -m unittest spec/*
 
 notification:
   email:
