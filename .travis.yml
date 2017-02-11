@@ -1,0 +1,18 @@
+sudo: false
+
+language: python
+
+python: "3.6"
+
+script: pytest
+
+notification:
+  email:
+    recipients:
+      luiscmholanda@gmail.com
+    on_success: never
+    on_failure: always
+
+addons:
+  code_climate:
+    repo_token: f22763788c124bed779320341d2bf6a6dd74dc22588272153ae2d1c53d0b6db5
