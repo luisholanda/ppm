@@ -5,6 +5,9 @@ python: '3.6'
 install:
 - pip install codeclimate-test-reporter
 
+before_script:
+- $(shell export PYTHONPATH=$PYTHONPATH:$(pwd))
+
 script:
 - python -m unittest spec/*.py
 - coverage run spec/*.py
