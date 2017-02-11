@@ -14,31 +14,26 @@ class RunCommand:
 		if start_output:
 			utils.write(start_output)
 
-		command_with_args = shlex.split(command)
+		try:
+			command_with_args = shlex.split(command)
+		except AttributeError:
+			command_with_args = command
 
 		self.run(command_with_args)
 
 	@staticmethod
 	def run(command: list):
-		process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+		process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-		while True:
-			output = process.stdout.readline().decode('utf-8')
-			err = process.stderr.readlines()
-
-			if err:
-				for error in err:
-					utils.write(error.decode('utf-8'))
-
-			if process.poll() is not None:
-				break
-			elif output != '':
-				utils.write(output)
+		stdout = iter(process.stdout.readline, b'')
+		for line in stdout:
+			utils.write(line.decode())
 
 
 if __name__ == '__main__':
 	utils.set_env()
+	cmd = RunCommand()
 	try:
-		RunCommand(sys.argv[1])
+		cmd.main(sys.argv[1:])
 	except IndexError:
-		RunCommand('ls -alF')
+		cmd.main('ls -alF')

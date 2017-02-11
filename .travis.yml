@@ -4,7 +4,6 @@ python: '3.6'
 
 install:
 - pip install codeclimate-test-reporter
-- pip install codecov
 
 before_script:
 - export PYTHONPATH=$PYTHONPATH:$(pwd)
