@@ -1,10 +1,10 @@
 # Don't read this :)
-from ppm import Commands
+from ppm.Commands import add, init, remove, run, start
 
 command = {
-    'add'   : Commands.add.AddCommand,
-    'init'  : Commands.init.InitCommand,
-    'remove': Commands.remove.RemoveCommand,
-    'run'   : Commands.run.RunCommand,
-    'start' : Commands.start.StartCommand
+    'add'   : add.AddCommand,
+    'init'  : init.InitCommand,
+    'remove': remove.RemoveCommand,
+    'run'   : run.RunCommand,
+    'start' : start.StartCommand
 }
