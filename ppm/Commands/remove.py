@@ -2,7 +2,7 @@ import json
 import os
 from multiprocessing import Pool
 
-from typing import List, Tuple
+from typing import List
 
 from ppm import utils
 from ppm.Commands.add import AddCommand
@@ -29,6 +29,8 @@ class RemoveCommand:
     def main(self, modules: List[str]):
         if modules:
             self._modules = modules
+        else:
+            self._modules = list(self._egg_info['dependencies'].keys())
 
         for err, module in self._pool.imap_unordered(self.remove_module, self._modules):
             self.logs_uninstall(err, module)
@@ -43,7 +45,7 @@ class RemoveCommand:
             print(utils.BColors.FAIL + f'Something bad happen while removing {module}: {err}' \
                   + utils.BColors.ENDC)
 
-    def remove_module(self, module: str) -> Tuple[str, str]:
+    def remove_module(self, module: str) -> (str, str):
         import shutil
 
         error = None

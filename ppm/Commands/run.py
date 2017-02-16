@@ -3,12 +3,13 @@ import shlex
 import subprocess
 import sys
 
+from typing import List
+
 from ppm import utils
 
 
 class RunCommand:
     def __init__(self):
-        # Setup argsparser
         with open('pyckage.json') as fp:
             pyck = json.load(fp)
             try:
@@ -21,14 +22,14 @@ class RunCommand:
             except KeyError:
                 self._start = None
 
-    def main(self, command: str, start_output: str = ''):
+    def main(self, args: List[str], start_output: str = ''):
         if start_output:
             utils.write(start_output)
 
         try:
-            command_with_args = shlex.split(command)
+            command_with_args = shlex.split(args)
         except AttributeError:
-            command_with_args = command
+            command_with_args = args
 
         self.run(command_with_args)
 

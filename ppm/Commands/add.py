@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 from multiprocessing import Pool
 
 import pip
@@ -13,6 +14,7 @@ TOTAL_LENGTH = 50
 
 
 class AddCommand:
+
     def __init__(self):
         self._modules = []
         self._egg_info = {
@@ -40,17 +42,27 @@ class AddCommand:
             # known in others runs of ppm.
             pass
 
-    def main(self, dependencies: dict or List[str]):
+        with open('pyckage.json') as fp:
+            pyck = json.load(fp)
+            self._pyck = pyck
+            dep = self._pyck.get('dependencies')
+            self._pyck['dependencies'] = dep if dep else {}
+
+    def main(self, argv: List[str]):
         modules = []
 
-        try:
-            for mod, version in dependencies.items():
-                # TODO: Version handling
-                modules.append(mod)
-        except AttributeError:
-            modules = dependencies
+        if argv:
+            dependencies = argv
+        else:
+            # For now, nothing of version handling
+            if self._pyck.get('dependencies'):
+                dependencies = list(self._pyck['dependencies'].keys())
+            else:
+                print("This project doesn't have dependencies yet, "
+                      "use `ppm {add, a} MODULE` to add a dependence\n")
+                sys.exit(1)
 
-        self._modules = modules
+        self._modules = dependencies
         self._get_dependencies()
 
     def _get_dependencies(self):
@@ -76,6 +88,7 @@ class AddCommand:
                                  version + utils.BColors.OKGREEN + ' \u2713' + utils.BColors.ENDC
 
                 print(installed_text)
+                self._pyck['dependencies'][module] = version
             else:
                 dots_length = TOTAL_LENGTH - module_length - len(err) - 2
                 fail_text = utils.BColors.FAIL + module + ' ' * dots_length + err + ' \u2717' + utils.BColors.ENDC
@@ -85,6 +98,9 @@ class AddCommand:
             ppm = self._egg_info
             ppm['modules_path'] = os.path.join(os.getcwd(), 'python_modules')
             json.dump(ppm, ppm_info, indent=2)
+
+        with open('pyckage.json', 'w') as fp:
+            json.dump(self._pyck, fp, indent=2)
 
     def _install_module(self, mod: str) -> Tuple[str, str, str]:
         error = None
@@ -123,16 +139,3 @@ class AddCommand:
             return 'error'
 
         return version
-
-    def add_module(self, module: str, version: str):
-        with open('pyckage.json', 'w+') as fp:
-            pyck = json.load(fp)
-            pyck['dependencies'][module] = version
-
-
-if __name__ == '__main__':
-    import sys
-
-    utils.set_env()
-    cmd = AddCommand()
-    cmd.main(sys.argv[1:])

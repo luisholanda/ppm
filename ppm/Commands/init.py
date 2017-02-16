@@ -1,15 +1,12 @@
-import argparse
 import json
 import os
 import re
 import time
 
-from typing import Dict, List
+from typing import Dict
 
 
 class InitCommand:
-    prog = 'ppm init'
-    description = 'Command to simply create a pyckage.json file'
     initial_text = """This utility will walk you through creating a pyckage.json file.
 It only covers the most common items, and tries to guess sensible defaults.
 
@@ -19,13 +16,7 @@ save it as a dependency in the pyckage.json file."""
     def __init__(self):
         print(self.initial_text)
 
-        self._parser = argparse.ArgumentParser(
-                prog=self.prog,
-                description=self.description
-        )
-
-    def main(self, args: List[str]):
-        self._parser.parse_args(args)
+    def main(self):
         pyckage = self.get_info()
         pyckage_parsed = self.parse_info(pyckage)
         self.write_on_disk(pyckage_parsed)
