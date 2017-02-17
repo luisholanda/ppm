@@ -179,3 +179,8 @@ class PythonPackageManager:
             args.func(args)
         else:
             add_comand(None)
+
+
+def main():
+    ppm = PythonPackageManager()
+    ppm.main()

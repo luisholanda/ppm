@@ -7,12 +7,12 @@ def write(text: str):
     sys.stdout.flush()
 
 
-MODULES_FOLDER = os.path.abspath('./python_modules')
+MODULES_FOLDER = os.path.join(os.getcwd(), 'python_modules')
 
 
 def set_env() -> dict:
     env = dict(os.environ)
-    env['PYTHONPATH'] = os.path.join(os.getcwd(), 'python_modules')
+    env['PYTHONPATH'] = MODULES_FOLDER
 
     return env
 

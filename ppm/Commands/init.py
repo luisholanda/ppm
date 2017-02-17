@@ -85,13 +85,14 @@ save it as a dependency in the pyckage.json file."""
             main_file_text = self.main_template(pyckage)
             file.write(main_file_text)
 
-        os.mkdir(pyckage["name"])
-        with open(os.path.join(pyckage["name"], '__init__.py'), 'w') as file:
-            init_text = self.init_template(pyckage['name'])
-            file.write(init_text)
-        with open(os.path.join(pyckage["name"], '__main__.py'), 'w') as file:
-            init_text = self.init_template(pyckage['name'])
-            file.write(init_text)
+        if pyckage["name"]:
+            os.mkdir(pyckage["name"])
+            with open(os.path.join(pyckage["name"], '__init__.py'), 'w') as file:
+                init_text = self.init_template(pyckage['name'])
+                file.write(init_text)
+            with open(os.path.join(pyckage["name"], '__main__.py'), 'w') as file:
+                init_text = self.init_template(pyckage['name'])
+                file.write(init_text)
 
     @staticmethod
     def init_template(name: str) -> str:
@@ -101,12 +102,22 @@ save it as a dependency in the pyckage.json file."""
     @staticmethod
     def main_template(options: Dict[str, str or dict]) -> str:
         date = time.strftime(r'%d/%m/%Y', time.localtime())
-        return \
-            f"# Created by {options['author']} in {date}\n" \
-            f"import {options['name']}\n" \
-            f"\n\n" \
-            f"def main():\n" \
-            f"    pass\n" \
-            f"\n\n" \
-            f"if __name__ == '__main__':\n" \
-            f"    main()\n"
+        if options['name']:
+            return \
+                f"# Created by {options['author']} in {date}\n" \
+                f"import {options['name']}\n" \
+                f"\n\n" \
+                f"def main():\n" \
+                f"    pass\n" \
+                f"\n\n" \
+                f"if __name__ == '__main__':\n" \
+                f"    main()\n"
+        else:
+            return \
+                f"# Created by {options['author']} in {date}\n" \
+                f"\n\n" \
+                f"def main():\n" \
+                f"    pass\n" \
+                f"\n\n" \
+                f"if __name__ == '__main__':\n" \
+                f"    main()\n"
