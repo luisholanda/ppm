@@ -1,12 +1,10 @@
-import sys
-
 from ppm import PythonPackageManager
 
 
-def main(argv: list):
-	ppm = PythonPackageManager()
-	ppm.main(argv)
+def main():
+    ppm = PythonPackageManager()
+    ppm.main()
 
 
 if __name__ == '__main__':
-	main(sys.argv[1:])
+    main()

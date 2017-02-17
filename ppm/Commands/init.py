@@ -51,6 +51,7 @@ save it as a dependency in the pyckage.json file."""
         description = input('description: ')
 
         entry_point = input('entry point: (app.py) ')
+        start_script = input('start script: ')
 
         test_command = input('test command: ')
         git_repo = input('git repository: ')
@@ -64,7 +65,8 @@ save it as a dependency in the pyckage.json file."""
             'description': description,
             'main'       : entry_point,
             'scripts'    : {
-                'test': test_command
+                'test': test_command,
+                'start': start_script
             },
             'author'     : author,
             'license'    : license,

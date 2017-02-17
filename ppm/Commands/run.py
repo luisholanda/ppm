@@ -3,8 +3,6 @@ import shlex
 import subprocess
 import sys
 
-from typing import List
-
 from ppm import utils
 
 
@@ -22,9 +20,13 @@ class RunCommand:
             except KeyError:
                 self._start = None
 
-    def main(self, args: List[str], start_output: str = ''):
+    def main(self, args: str, start_output: str = ''):
         if start_output:
-            utils.write(start_output)
+            print(start_output, '\n')
+        else:
+            print(utils.BColors.BOLD + utils.BColors.OKGREEN + 'Running:',
+                  utils.BColors.HEADER, self._start, utils.BColors.ENDC, '\n')
+
 
         try:
             command_with_args = shlex.split(args)
@@ -35,7 +37,9 @@ class RunCommand:
 
     @staticmethod
     def run(command: str):
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        env = utils.set_env()
+
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env)
 
         stdout = iter(process.stdout.readline, b'')
         for line in stdout:

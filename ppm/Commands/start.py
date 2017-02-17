@@ -9,8 +9,8 @@ class StartCommand(RunCommand):
     def main(self):
         if self._start:
             start_output = utils.BColors.BOLD + utils.BColors.OKGREEN + 'Starting: ' \
-                           + utils.BColors.HEADER + self._start + utils.BColors.ENDC + '\n'
+                           + utils.BColors.HEADER + self._start + utils.BColors.ENDC
             super(StartCommand, self).main(self._start, start_output)
         else:
-            print(utils.BColors.FAIL + 'ERROR: start command is not defined in pyckage.json. To use this command,'
+            print(utils.BColors.FAIL + 'ERROR: start command is not defined in pyckage.json. To use this command, '
                                        'please define one.')
