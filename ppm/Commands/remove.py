@@ -1,7 +1,6 @@
 import json
 import os
 from multiprocessing import Pool
-
 from typing import List
 
 from ppm import utils
@@ -42,10 +41,11 @@ class RemoveCommand:
         elif err == 'NotFError':
             print(utils.BColors.FAIL + f'{module} is not installed' + utils.BColors.ENDC)
         else:
-            print(utils.BColors.FAIL + f'Something bad happen while removing {module}: {err}' \
+            print(utils.BColors.FAIL + f'Something bad happen while removing {module}: {err[0]}\n'
+                                       f'  ↪ {err[1]}' \
                   + utils.BColors.ENDC)
 
-    def remove_module(self, module: str) -> (str, str):
+    def remove_module(self, module: str) -> (tuple, str):
         import shutil
 
         error = None
@@ -60,10 +60,10 @@ class RemoveCommand:
         try:
             locals()[module] = __import__(module, globals=globals())
             imported_module = locals()[module]
-        except ImportError:
-            error = 'ImpError'
-        except ModuleNotFoundError:
-            error = 'NotFError'
+        except ImportError as err:
+            error = 'ImpError', err
+        except ModuleNotFoundError as err:
+            error = 'NotFError', err
 
         # Get the path for the module
         if imported_module:
@@ -71,8 +71,8 @@ class RemoveCommand:
                 path = imported_module.__path__[0]
             except AttributeError:
                 file = imported_module.__file__
-            except IndexError:
-                error = 'InsError'
+            except IndexError as err:
+                error = 'InsError', err
         else:
             return error, module
 
@@ -80,8 +80,8 @@ class RemoveCommand:
         if path:
             try:
                 shutil.rmtree(path)
-            except Exception:
-                error = 'RmError'
+            except Exception as err:
+                error = 'RmError', err
 
             # Remove also the egg-info file/folder
             # Some module have capitalized egg-info
@@ -132,13 +132,13 @@ class RemoveCommand:
         elif file:
             try:
                 os.remove(file)
-            except FileNotFoundError:
-                error = 'RmError'
+            except FileNotFoundError as err:
+                error = 'RmError', err
 
         # Check if the module is really deleted
         version = AddCommand.get_version(module)
 
         if version:
-            error = 'VerError'
+            error = 'VerError', None
 
         return error, module

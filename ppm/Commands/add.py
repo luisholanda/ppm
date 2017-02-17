@@ -2,9 +2,10 @@ import json
 import os
 import sys
 from multiprocessing import Pool
+from typing import List, Tuple
 
 import pip
-from typing import List, Tuple
+from pip.utils import get_installed_version
 
 from ppm import utils
 
@@ -14,12 +15,11 @@ TOTAL_LENGTH = 50
 
 
 class AddCommand:
-
     def __init__(self):
         self._modules = []
         self._egg_info = {
             'dependencies': {},
-            'py_version'  : sys.version[0:3]
+            'py_version': sys.version[0:3]
         }
 
         try:
@@ -48,7 +48,7 @@ class AddCommand:
             dep = self._pyck.get('dependencies')
             self._pyck['dependencies'] = dep if dep else {}
 
-    def main(self, argv: List[str]):
+    def main(self, argv: List[str], add: bool):
         modules = []
 
         if argv:
@@ -65,24 +65,32 @@ class AddCommand:
         self._modules = dependencies
         self._get_dependencies()
 
+        if add:
+            with open('pyckage.json', 'w') as fp:
+                json.dump(self._pyck, fp, indent=2)
+
     def _get_dependencies(self):
         pool = Pool(CPU_CORES)
 
         install_text = utils.BColors.OKGREEN + 'Installing dependencies...' + utils.BColors.ENDC
         print(install_text)
 
-        for err, module, version in pool.imap_unordered(self._install_module, self._modules):
+        for err, module in pool.imap_unordered(self._install_module, self._modules):
             module_length = len(module)
-            version_length = len(version)
 
-            dots_length = TOTAL_LENGTH - module_length - version_length - 2
+            version = self.get_version(module)
+            if version is None:
+                err = 'InstError' if not err else err
 
             if not err:
+                version_length = len(version)
+                dots_length = TOTAL_LENGTH - module_length - version_length - 2
+
                 self._egg_info['dependencies'][module] = {
-                    'name'     : module,
-                    'egg_file' : self.egg_info(module, version),
+                    'name': module,
+                    'egg_file': self.egg_info(module, version),
                     'dist_info': self.dist_info(module, version),
-                    'version'  : version
+                    'version': version
                 }
                 installed_text = module + ' ' * dots_length + utils.BColors.OKBLUE + \
                                  version + utils.BColors.OKGREEN + ' \u2713' + utils.BColors.ENDC
@@ -99,26 +107,15 @@ class AddCommand:
             ppm['modules_path'] = os.path.join(os.getcwd(), 'python_modules')
             json.dump(ppm, ppm_info, indent=2)
 
-        with open('pyckage.json', 'w') as fp:
-            json.dump(self._pyck, fp, indent=2)
-
-    def _install_module(self, mod: str) -> Tuple[str, str, str]:
+    def _install_module(self, mod: str) -> Tuple[str or None, str]:
         error = None
 
         try:
             pip.main(['install', mod, '-t', utils.MODULES_FOLDER, '-qq'])
         except Exception:
-            error = 'ERROR'
+            error = 'Error'
 
-        version = self.get_version(mod)
-
-        if not version:
-            error = 'IERROR'
-            version = 'failed'
-        elif version == 'error':
-            error = 'ERROR'
-
-        return error, mod, version
+        return error, mod
 
     def egg_info(self, mod: str, ver: str):
         return f"{mod}-{ver}-py{self._egg_info['py_version']}.egg-info"
@@ -129,12 +126,10 @@ class AddCommand:
 
     @staticmethod
     def get_version(mod: str) -> str:
-        from pip.utils import get_installed_version
+        from ppm.utils import MODULES_FOLDER
 
-        path = os.path.join(os.getcwd(), 'python_modules')
-        abs_path = os.path.abspath(path)
         try:
-            version = get_installed_version(mod, [abs_path])
+            version = get_installed_version(mod, [MODULES_FOLDER])
         except:
             return 'error'
 
