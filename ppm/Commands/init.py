@@ -10,7 +10,7 @@ class InitCommand:
     initial_text = """This utility will walk you through creating a pyckage.json file.
 It only covers the most common items, and tries to guess sensible defaults.
 
-Use `ppm add <pkg> --save` afterwards to install a package and
+Use `ppm add <pkg> --add` afterwards to install a package and
 save it as a dependency in the pyckage.json file."""
 
     def __init__(self):
