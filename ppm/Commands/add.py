@@ -87,7 +87,7 @@ class AddCommand:
         for err, module in pool.imap_unordered(self._install_module, self._modules):
             module_length = len(module)
 
-            version = self.get_version(module)
+            version = self.get_version(module, self._global)
             if version is None:
                 err = 'InstError' if not err else err
 
@@ -140,10 +140,11 @@ class AddCommand:
     def dist_info(mod: str, ver: str):
         return f"{mod}-{ver}.dist-info"
 
-    def get_version(self, mod: str) -> str:
+    @staticmethod
+    def get_version(mod: str, glob: bool) -> str:
         from ppm.utils import MODULES_FOLDER
 
-        lookup_dir = [MODULES_FOLDER] if not self._global else None
+        lookup_dir = [MODULES_FOLDER] if not glob else None
 
         try:
             version = get_installed_version(mod, lookup_dir)

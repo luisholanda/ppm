@@ -78,10 +78,10 @@ class RemoveCommand:
                 error = 'PipError', err
             return error, module
 
-
-        if not AddCommand.get_version(module):
+        if not AddCommand.get_version(module, self._global):
             return ('NotFError', None), module
 
+        print(sys.path)
         # Import the module we want to delete
         try:
             locals()[module] = __import__(module, globals=globals())
@@ -162,7 +162,7 @@ class RemoveCommand:
                 error = 'RmError', err
 
         # Check if the module is really deleted
-        version = AddCommand.get_version(module)
+        version = AddCommand.get_version(module, self._global)
 
         if version:
             error = 'VerError', None

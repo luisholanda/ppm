@@ -192,5 +192,6 @@ class PythonPackageManager:
 
 
 def main():
+    sys.path.append(utils.MODULES_FOLDER)
     ppm = PythonPackageManager()
     ppm.main()
