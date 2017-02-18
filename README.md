@@ -1,4 +1,5 @@
 # Python Package Manager
+[![PyPI version](https://badge.fury.io/py/pythonpm.svg)](https://badge.fury.io/py/pythonpm)
 [![Build Status](https://travis-ci.org/luisholanda/ppm.svg?branch=master)](https://travis-ci.org/luisholanda/ppm)
 
 Main repository of Python Package Manager (a.k.a ppm), based in npm and yarn from node.

@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='ppm',
+    name='pythonpm',
     version=0.1,
     description='The Python Package Manager that make your life easier.',
     classifiers=[
@@ -12,7 +12,7 @@ setup(
         "Programming Language :: Python :: 3.6",
     ],
     keywords='easy_install distutils setuptools',
-    url='https://gitlab.com/luisholanda/ppm.git',
+    url='https://github.com/luisholanda/ppm',
     author='Luis Holanda',
     author_email='luiscmholanda@gmail.com',
     license='MIT',
