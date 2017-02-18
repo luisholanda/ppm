@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import sys
 from multiprocessing import Pool
 from typing import List
@@ -64,7 +65,6 @@ class RemoveCommand:
                   + utils.BColors.ENDC)
 
     def remove_module(self, module: str) -> (None or tuple, str):
-        import shutil
 
         error = None
         imported_module = None
@@ -81,7 +81,6 @@ class RemoveCommand:
         if not AddCommand.get_version(module, self._global):
             return ('NotFError', None), module
 
-        print(sys.path)
         # Import the module we want to delete
         try:
             locals()[module] = __import__(module, globals=globals())
@@ -90,6 +89,21 @@ class RemoveCommand:
             error = 'ImpError', err
         except ModuleNotFoundError as err:
             error = 'NotFError', err
+
+        err = self.remove_files(imported_module, module)
+        if err:
+            return err, module
+
+        # Check if the module is really deleted
+        version = AddCommand.get_version(module, self._global)
+
+        if version:
+            error = 'VerError', None
+
+        return error, module
+
+    def remove_files(self, imported_module, module):
+        error = None
 
         # Get the path for the module
         if imported_module:
@@ -100,7 +114,7 @@ class RemoveCommand:
             except IndexError as err:
                 error = 'InsError', err
         else:
-            return error, module
+            return error
 
         # Then we delete it
         if path:
@@ -119,7 +133,7 @@ class RemoveCommand:
             else:
                 cap_egg_file = egg_file[0].capitalize() + egg_file[1:]
                 paths = {
-                    'egg'    : os.path.join(self._modules_path, egg_file),
+                    'egg': os.path.join(self._modules_path, egg_file),
                     'cap_egg': os.path.join(self._modules_path, cap_egg_file)
                 }
                 if os.path.exists(paths['egg']):
@@ -142,7 +156,7 @@ class RemoveCommand:
             else:
                 cap_dist_file = dist_file[0].capitalize() + dist_file[1:]
                 paths = {
-                    'egg'    : os.path.join(self._modules_path, dist_file),
+                    'egg': os.path.join(self._modules_path, dist_file),
                     'cap_egg': os.path.join(self._modules_path, cap_dist_file)
                 }
                 if os.path.exists(paths['egg']):
@@ -161,10 +175,4 @@ class RemoveCommand:
             except FileNotFoundError as err:
                 error = 'RmError', err
 
-        # Check if the module is really deleted
-        version = AddCommand.get_version(module, self._global)
-
-        if version:
-            error = 'VerError', None
-
-        return error, module
+        return error
