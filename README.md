@@ -87,7 +87,7 @@ fix this (someone?).
 2. **Add**
 
     ```
-    ppm {add, a} [-h] [--add] [<modules>]
+    ppm {add, a} [-h] [-g] [--add] [<modules>]
     ```
     
     Install `<modules>` in a folder named `python_modules` that will store all
@@ -96,13 +96,17 @@ fix this (someone?).
     If the flag `--add` is passed, the modules will be added to the `dependencies`
     field in `pyckage.json`.
     
+    You can use the `-g` flag to install the packages globally. 
+    
 3. **Remove**
 
     ```
-    ppm {remove, rm} [-h] <modules>
+    ppm {remove, rm} [-h] [-g] <modules>
     ```
     
     Removes a ppm installed package.
+    
+    Like the `add` command, you can use the `-g` flag to remove globally installed packages.
 
 4. **Run**
 

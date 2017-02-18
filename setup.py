@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pythonpm',
-    version=0.1,
+    version='0.1.1',
     description='The Python Package Manager that make your life easier.',
     classifiers=[
         "Intended Audience :: Developers",

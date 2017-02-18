@@ -16,7 +16,8 @@ TOTAL_LENGTH = 50
 
 class AddCommand:
     def __init__(self):
-        self._modules = []
+        self._global: bool
+        self._modules: List[str]
         self._egg_info = {
             'dependencies': {},
             'py_version': sys.version[0:3]
@@ -42,25 +43,33 @@ class AddCommand:
             # known in others runs of ppm.
             pass
 
-        with open('pyckage.json') as fp:
-            pyck = json.load(fp)
-            self._pyck = pyck
-            dep = self._pyck.get('dependencies')
-            self._pyck['dependencies'] = dep if dep else {}
+        try:
+            with open('pyckage.json') as fp:
+                pyck = json.load(fp)
+                self._pyck = pyck
+                dep = self._pyck.get('dependencies')
+                self._pyck['dependencies'] = dep if dep else {}
+        except FileNotFoundError:
+            self._pyck = {'dependencies': {}}
 
-    def main(self, argv: List[str], add: bool):
+    def main(self, argv: List[str], add: bool, glob: bool):
         modules = []
+
+        self._global = glob
 
         if argv:
             dependencies = argv
-        else:
+        elif not self._global:
             # For now, nothing of version handling
             if self._pyck.get('dependencies'):
                 dependencies = list(self._pyck['dependencies'].keys())
             else:
                 print("This project doesn't have dependencies yet, "
-                      "use `ppm {add, a} MODULE` to add a dependence\n")
+                      "use `ppm {add, a} --add MODULE` to add a dependence\n")
                 sys.exit(1)
+        else:
+            print(utils.BColors.FAIL + "Specify the module you want globally install." + utils.BColors.ENDC)
+            sys.exit(1)
 
         self._modules = dependencies
         self._get_dependencies()
@@ -102,18 +111,25 @@ class AddCommand:
                 fail_text = utils.BColors.FAIL + module + ' ' * dots_length + err + ' \u2717' + utils.BColors.ENDC
                 print(fail_text)
 
-        with open('.ppm.info', 'w') as ppm_info:
-            ppm = self._egg_info
-            ppm['modules_path'] = os.path.join(os.getcwd(), 'python_modules')
-            json.dump(ppm, ppm_info, indent=2)
+        if not self._global:
+            with open('.ppm.info', 'w') as ppm_info:
+                ppm = self._egg_info
+                ppm['modules_path'] = os.path.join(os.getcwd(), 'python_modules')
+                json.dump(ppm, ppm_info, indent=2)
 
     def _install_module(self, mod: str) -> Tuple[str or None, str]:
         error = None
 
-        try:
-            pip.main(['install', mod, '-t', utils.MODULES_FOLDER, '-qq'])
-        except Exception:
-            error = 'Error'
+        if not self._global:
+            try:
+                pip.main(['install', mod, '-t', utils.MODULES_FOLDER, '-qq'])
+            except Exception:
+                error = 'Error'
+        else:
+            try:
+                pip.main(['install', mod, '-qq'])
+            except Exception:
+                error = 'Error'
 
         return error, mod
 
@@ -124,12 +140,13 @@ class AddCommand:
     def dist_info(mod: str, ver: str):
         return f"{mod}-{ver}.dist-info"
 
-    @staticmethod
-    def get_version(mod: str) -> str:
+    def get_version(self, mod: str) -> str:
         from ppm.utils import MODULES_FOLDER
 
+        lookup_dir = [MODULES_FOLDER] if not self._global else None
+
         try:
-            version = get_installed_version(mod, [MODULES_FOLDER])
+            version = get_installed_version(mod, lookup_dir)
         except:
             return 'error'
 

@@ -6,7 +6,7 @@ from typing import Dict
 from ppm import utils
 from ppm.Commands import command
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 
 def create_main_parser() -> argparse.ArgumentParser:
@@ -34,13 +34,16 @@ def create_main_parser() -> argparse.ArgumentParser:
     add_parser = subparser.add_parser('add',
                                       aliases=['a'],
                                       help='install Python packages',
-                                      usage='ppm {add, a} [-h] [--add] [<modules>]',
+                                      usage='ppm {add, a} [-h] [--add] [-g] [<modules>]',
                                       description="""
         Easily install Python packages and add them to pyckage.json dependencies.
         If no module is passed, this command will install all dependencies from pyckage.json
                                       """)
     add_parser.add_argument('--add',
                             help="add the packages to pyckage.json",
+                            action='store_true')
+    add_parser.add_argument('-g',
+                            help="install the packages globally",
                             action='store_true')
     add_parser.add_argument('modules',
                             help="packages that will be installed",
@@ -61,13 +64,16 @@ def create_main_parser() -> argparse.ArgumentParser:
     remove_parser = subparser.add_parser('remove',
                                          aliases=['rm'],
                                          help='remove packages installed at python_modules folder',
-                                         usage='ppm {remove, rm} [-h] <modules>',
+                                         usage='ppm {remove, rm} [-h] [-g] <modules>',
                                          description="""
         Remove local installed Python packages and remove them from pyckage.json
                                          """)
     remove_parser.add_argument('modules',
                                help='packages that will be removed',
                                nargs=argparse.ZERO_OR_MORE)
+    remove_parser.add_argument('-g',
+                               help='remove globally installed packages',
+                               action='store_true')
     remove_parser.set_defaults(func=remove_command)
 
     # Run subparser
@@ -96,9 +102,11 @@ def create_main_parser() -> argparse.ArgumentParser:
 
 
 def add_comand(args: argparse.Namespace or None):
-    _ = parse_pyckage('add')
+    if not args.g:
+        _ = parse_pyckage('add')
+
     if args and args.modules:
-        command['add']().main(args.modules, args.add)
+        command['add']().main(args.modules, args.add, args.g)
     else:
         command['add']().main([])
 
@@ -114,11 +122,13 @@ def init_command(_: argparse.Namespace):
 
 
 def remove_command(args: argparse.Namespace):
-    _ = parse_pyckage('remove')
+    if not args.g:
+        _ = parse_pyckage('remove')
+
     if args.modules:
-        command['remove']().main(args.modules)
+        command['remove']().main(args.modules, args.g)
     else:
-        command['remove']().main([])
+        command['remove']().main([], args.g)
 
 
 def run_command(args: argparse.Namespace):
