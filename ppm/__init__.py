@@ -6,7 +6,7 @@ from typing import Dict
 from ppm import utils
 from ppm.Commands import command
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 
 def create_main_parser() -> argparse.ArgumentParser:
